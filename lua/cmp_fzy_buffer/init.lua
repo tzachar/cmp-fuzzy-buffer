@@ -23,6 +23,7 @@ local defaults = {
 		[string.byte('{')] = true,
 	},
 	max_buffer_lines = 20000,
+	max_match_length = 50,
 }
 
 local function extract_match(line, start_match, end_match, stop_set)
@@ -75,7 +76,7 @@ source.complete = function(self, params, callback)
 			for _, result in ipairs(matches) do
 				local line, positions, score = unpack(result)
 				local item = extract_match(line, positions[1], positions[#positions], params.option.stop_characters)
-				if set[item] == nil then
+				if set[item] == nil and #item <= params.option.max_match_length then
 					set[item] = true
 					table.insert(items, {label = item})
 				end

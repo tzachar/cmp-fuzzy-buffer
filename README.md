@@ -82,3 +82,9 @@ Te plugin will not work in buffers with more than `max_buffer_lines` lines for
 performance reasons.
 
 _Default:_ 20000
+
+## max_match_length (type: int)
+
+Do not show matches longer than `max_match_length`.
+
+_Default:_ 50
