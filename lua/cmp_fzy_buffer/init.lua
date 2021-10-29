@@ -21,6 +21,8 @@ local defaults = {
 		[string.byte(';')] = true,
 		[string.byte('}')] = true,
 		[string.byte('{')] = true,
+		[string.byte('"')] = true,
+		[string.byte("'")] = true,
 	},
 	max_buffer_lines = 20000,
 	max_match_length = 50,
@@ -69,6 +71,7 @@ source.complete = function(self, params, callback)
 			table.insert(lines, line:match("^%s*(.-)%s*$"))
 		end
 	end
+  local is_cmd = vim.api.nvim_get_mode().mode == 'c'
 	vim.schedule(function()
 			local items = {}
 			local set = {}
@@ -78,7 +81,12 @@ source.complete = function(self, params, callback)
 				local item = extract_match(line, positions[1], positions[#positions], params.option.stop_characters)
 				if set[item] == nil and #item <= params.option.max_match_length then
 					set[item] = true
-					table.insert(items, {label = item})
+					table.insert(
+					items,
+					{
+						word = (is_cmd and vim.fn.escape(item, '/?')) or item,
+						label = item,
+					})
 				end
 			end
 			callback({
