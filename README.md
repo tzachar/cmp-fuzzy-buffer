@@ -1,12 +1,23 @@
 # cmp-fzy-buffer
 
-nvim-cmp source for fuzzy matched items from using the current buffer.
+`nvim-cmp` source for fuzzy matched items from using the current buffer.
+Can use either `fzf` or `fzy`.
 
 # Installation
 
-Depends on [fzy-lua-native](https://github.com/romgrk/fzy-lua-native).
+Depends on [telescope-fzf-native.nvim](https://github.com/nvim-telescope/telescope-fzf-native.nvim) or 
+[fzy-lua-native](https://github.com/romgrk/fzy-lua-native).
 
-Using [Packer](https://github.com/wbthomason/packer.nvim/):
+If both `fzf` and `fzy` are installed, will prefer `fzf`.
+
+Using [Packer](https://github.com/wbthomason/packer.nvim/) with `fzf`:
+```lua
+use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make'}
+use "hrsh7th/nvim-cmp"
+use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'nvim-telescope/telescope-fzf-native.nvim'}}
+```
+
+Using [Packer](https://github.com/wbthomason/packer.nvim/) with `fzy`:
 ```lua
 use {'romgrk/fzy-lua-native', run = 'make'}
 use "hrsh7th/nvim-cmp"
@@ -32,6 +43,10 @@ cmp.setup.cmdline('/', {
 })
 ```
 
+In `/` search mode, the plugin will match the input string as is, without
+parsing out tokens. This enables fuzzy search containing, for example, spaces.
+
+
 *Note:* the plugin's name is `fzy_buffer` in `cmp`'s config.
 
 # Configuration
@@ -40,11 +55,10 @@ cmp.setup.cmdline('/', {
 ## keyword_pattern (type: string)
 
 _Default:_ `[[\%(-\?\d\+\%(\.\d\+\)\?\|\h\w*\%([\-.]\w*\)*\)]]`
+_ cmdline Default:_ `[=[[^[:blank:]].*]=]`
 
 A vim's regular expression for detecting the pattern to search with (starting
 from where the cursor currently is)
-
-You can set this to `\k\+` if you want to use the `iskeyword` option for recognizing words.
 
 ## stop_characters (type: table)
 
@@ -67,6 +81,8 @@ stop_characters = {
   [string.byte(';')] = true,
   [string.byte('}')] = true,
   [string.byte('{')] = true,
+  [string.byte('"')] = true,
+  [string.byte("'")] = true,
 }
 ```
 
