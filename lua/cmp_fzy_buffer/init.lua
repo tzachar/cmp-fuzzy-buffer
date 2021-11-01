@@ -2,7 +2,7 @@ local api = vim.api
 
 local has_fzf, matcher = pcall(require, 'cmp_fzy_buffer.fzf_matcher')
 if not has_fzf then
-	local has_fzy, fzy_matcher = pcall(require, 'cmp_fzy_buffer.fzf_matcher')
+	local has_fzy, fzy_matcher = pcall(require, 'cmp_fzy_buffer.fzy_matcher')
 	if has_fzy then
 		matcher = fzy_matcher
 	else
