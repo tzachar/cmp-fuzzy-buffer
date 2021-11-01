@@ -75,7 +75,7 @@ local function extract_match(line, start_match, end_match, stop_set)
 		end
 	end
 
-	return line:sub(start_match, end_match)
+	return line:sub(start_match, end_match):match("^%s*(.-)%s*$")
 end
 
 local source = {}
