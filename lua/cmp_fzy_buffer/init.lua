@@ -1,16 +1,5 @@
 local api = vim.api
-
-local has_fzf, matcher = pcall(require, 'cmp_fzy_buffer.fzf_matcher')
-if not has_fzf then
-	local has_fzy, fzy_matcher = pcall(require, 'cmp_fzy_buffer.fzy_matcher')
-	if has_fzy then
-		matcher = fzy_matcher
-	else
-		vim.notify('cmp_fzy_buffer: Cannot find niether fzy nor fzf. Please install either')
-		return
-	end
-end
-
+local matcher = require('fuzzy_nvim')
 
 local defaults = {
   keyword_pattern = [[\%(-\?\d\+\%(\.\d\+\)\?\|\h\w*\%([\-]\w*\)*\)]],

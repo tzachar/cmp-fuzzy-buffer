@@ -5,23 +5,21 @@ Can use either `fzf` or `fzy`.
 
 # Installation
 
-Depends on [telescope-fzf-native.nvim](https://github.com/nvim-telescope/telescope-fzf-native.nvim) or 
-[fzy-lua-native](https://github.com/romgrk/fzy-lua-native).
-
-If both `fzf` and `fzy` are installed, will prefer `fzf`.
+Depends on [fuzzy.nvim](https://github.com/tzachar/fuzzy.nvim) (which depends
+either on `fzf` or on `fzy`).
 
 Using [Packer](https://github.com/wbthomason/packer.nvim/) with `fzf`:
 ```lua
 use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make'}
 use "hrsh7th/nvim-cmp"
-use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'nvim-telescope/telescope-fzf-native.nvim'}}
+use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim'}}
 ```
 
 Using [Packer](https://github.com/wbthomason/packer.nvim/) with `fzy`:
 ```lua
 use {'romgrk/fzy-lua-native', run = 'make'}
 use "hrsh7th/nvim-cmp"
-use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'romgrk/fzy-lua-native'}}
+use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim'}}
 ```
 
 # Setup
