@@ -1,4 +1,4 @@
-# cmp-fzy-buffer
+# cmp-fuzzy-buffer
 
 `nvim-cmp` source for fuzzy matched items from using the current buffer.
 Can use either `fzf` or `fzy`.
@@ -12,14 +12,14 @@ Using [Packer](https://github.com/wbthomason/packer.nvim/) with `fzf`:
 ```lua
 use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make'}
 use "hrsh7th/nvim-cmp"
-use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim'}}
+use {'tzachar/cmp-fuzzy-buffer', requires = {'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim'}}
 ```
 
 Using [Packer](https://github.com/wbthomason/packer.nvim/) with `fzy`:
 ```lua
 use {'romgrk/fzy-lua-native', run = 'make'}
 use "hrsh7th/nvim-cmp"
-use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim'}}
+use {'tzachar/cmp-fuzzy-buffer', requires = {'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nvim'}}
 ```
 
 # Setup
@@ -27,7 +27,7 @@ use {'tzachar/cmp-fzy-buffer', requires = {'hrsh7th/nvim-cmp', 'tzachar/fuzzy.nv
 ```lua
 require'cmp'.setup {
   sources = cmp.config.sources({
-    { name = 'fzy_buffer' },
+    { name = 'fuzzy_buffer' },
   })
 }
 ```
@@ -36,7 +36,7 @@ This plugin can also be used to perform `/` searches with cmdline mode of cmp:
 ```lua
 cmp.setup.cmdline('/', {
   sources = cmp.config.sources({
-    { name = 'fzy_buffer' }
+    { name = 'fuzzy_buffer' }
   })
 })
 ```
@@ -45,7 +45,7 @@ In `/` search mode, the plugin will match the input string as is, without
 parsing out tokens. This enables fuzzy search containing, for example, spaces.
 
 
-*Note:* the plugin's name is `fzy_buffer` in `cmp`'s config.
+*Note:* the plugin's name is `fuzzy_buffer` in `cmp`'s config.
 
 # Configuration
 
