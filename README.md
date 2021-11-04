@@ -88,3 +88,38 @@ _Default:_ 20000
 Do not show matches longer than `max_match_length`.
 
 _Default:_ 50
+
+## get_bufnrs (type: function)
+
+Return a list of buffer numbers from which to get lines.
+
+_Default_: 
+```lua
+get_bufnrs = function()
+  return { vim.api.nvim_get_current_buf() }
+end
+```
+
+If you want to use all loaded buffer, you can use the following setup:
+
+```lua
+require'cmp'.setup {
+  sources = cmp.config.sources({
+    { 
+       name = 'fuzzy_buffer' ,
+       opts = {
+          get_bufnrs = function()  
+          local bufs = {}
+          for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            local buftype = vim.api.nvim_buf_get_option(buf, 'buftype')
+            if buftype ~= 'nofile' and buftype ~= 'prompt' then
+              bufs[#bufs + 1] = buf
+            end
+          end
+          return bufs
+          end
+       },
+    },
+  })
+}
+```

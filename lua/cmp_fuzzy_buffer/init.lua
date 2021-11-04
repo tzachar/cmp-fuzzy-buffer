@@ -7,6 +7,9 @@ local defaults = {
 	non_indentifier_patter = [=[[^[:keyword:]]]=],
 	max_buffer_lines = 20000,
 	max_match_length = 50,
+  get_bufnrs = function()
+    return { vim.api.nvim_get_current_buf() }
+	end,
 }
 
 local function minmax(list)
@@ -75,7 +78,11 @@ source.complete = function(self, params, callback)
 	local pattern = params.context.cursor_before_line:sub(params.offset)
 	vim.schedule(function()
 		local lines = {}
-		lines = api.nvim_buf_get_lines(params.context.bufnr, 0, -1, true)
+		for _, bufnr in ipairs(params.option.get_bufnrs()) do
+			if api.nvim_buf_line_count(bufnr) <= params.option.max_buffer_lines then
+				vim.list_extend(lines, api.nvim_buf_get_lines(bufnr, 0, -1, true))
+			end
+		end
 		local items = {}
 		local set = {}
 		local matches = matcher:filter(pattern, lines)
