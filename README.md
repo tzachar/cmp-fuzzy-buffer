@@ -58,37 +58,23 @@ _ cmdline Default:_ `[=[[^[:blank:]].*]=]`
 A vim's regular expression for detecting the pattern to search with (starting
 from where the cursor currently is)
 
-## stop_characters (type: table)
-
+## indentifier_patter (type: vim regex)
 _Default:_
 ```lua
-stop_characters = {
-  [string.byte(' ')] = true,
-  [string.byte('.')] = true,
-  [string.byte('=')] = true,
-  [string.byte(':')] = true,
-  [string.byte('(')] = true,
-  [string.byte(')')] = true,
-  [string.byte('[')] = true,
-  [string.byte(']')] = true,
-  [string.byte('-')] = true,
-  [string.byte('+')] = true,
-  [string.byte('<')] = true,
-  [string.byte('>')] = true,
-  [string.byte(',')] = true,
-  [string.byte(';')] = true,
-  [string.byte('}')] = true,
-  [string.byte('{')] = true,
-  [string.byte('"')] = true,
-  [string.byte("'")] = true,
-}
+indentifier_patter = [=[[[:keyword:]]]=]
 ```
 
-When fzy found a fuzzy match, we need to translate the fuzzy match to a
-suggestion. The `stop_characters` table allows us to define the suggestion item
-by expanding the boudries of fzy's match until we encounter a character in
-`stop_characters`.
+Used to find the best matched identifier to return based on the fuzzy patter and
+match results.
 
+## non_indentifier_patter (type: vim regex)
+_Default:_
+```lua
+non_indentifier_patter = [=[[^[:keyword:]]]=],
+```
+
+Used to find the best matched identifier to return based on the fuzzy patter and
+match results.
 
 ## max_buffer_lines (type: int)
 

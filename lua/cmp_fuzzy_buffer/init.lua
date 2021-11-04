@@ -3,27 +3,8 @@ local matcher = require('fuzzy_nvim')
 
 local defaults = {
   keyword_pattern = [[\%(-\?\d\+\%(\.\d\+\)\?\|\h\w*\%([\-]\w*\)*\)]],
-	-- specifically dont use a regex here
-	stop_characters = {
-		[string.byte(' ')] = true,
-		[string.byte('.')] = true,
-		[string.byte('=')] = true,
-		[string.byte(':')] = true,
-		[string.byte('(')] = true,
-		[string.byte(')')] = true,
-		[string.byte('[')] = true,
-		[string.byte(']')] = true,
-		[string.byte('-')] = true,
-		[string.byte('+')] = true,
-		[string.byte('<')] = true,
-		[string.byte('>')] = true,
-		[string.byte(',')] = true,
-		[string.byte(';')] = true,
-		[string.byte('}')] = true,
-		[string.byte('{')] = true,
-		[string.byte('"')] = true,
-		[string.byte("'")] = true,
-	},
+	indentifier_patter = [=[[[:keyword:]]]=],
+	non_indentifier_patter = [=[[^[:keyword:]]]=],
 	max_buffer_lines = 20000,
 	max_match_length = 50,
 }
@@ -42,36 +23,35 @@ local function minmax(list)
 	return min, max
 end
 
-local function extract_match(line, start_match, end_match, stop_set)
-
-	if start_match > 1 then
-		while start_match > 1 and stop_set[line:byte(start_match)] == nil do
-			start_match = start_match - 1
-		end
-
-		if stop_set[line:byte(start_match)] then
-			start_match = start_match + 1
-		end
-	end
-
-	if end_match < #line then
-		while end_match < #line and stop_set[line:byte(end_match)] == nil do
-			end_match = end_match + 1
-		end
-
-		if stop_set[line:byte(end_match)] then
-			end_match = end_match - 1
-		end
-	end
-
-	return line:sub(start_match, end_match):match("^%s*(.-)%s*$")
-end
-
 local source = {}
+
+
+source.extract_match = function(self, line, first_match, last_match, id_pattern, non_id_pattern)
+	-- dump(line, first_match, last_match)
+	local start_regex = self:regex([[.*]] .. non_id_pattern .. [[\+]] .. [[\ze]] .. id_pattern .. [[\+]])
+	local end_regex = self:regex(non_id_pattern .. [[\|$]])
+
+	local s, e = end_regex:match_str(line:sub(last_match))
+	local last_match_out = last_match + (s or 2) - 1
+	-- dump('end:', line:sub(last_match), (s or 'nil'), (e or 'nil'), last_match_out)
+
+	s, e = start_regex:match_str(line:sub(1, first_match))
+	local first_match_out = (e or first_match - 1) + 1
+	-- dump('start:', line:sub(1, first_match), (s or 'nil'), (e or 'nil'), first_match_out)
+
+	-- dump('out:', line:sub(first_match_out, last_match_out))
+	return line:sub(first_match_out, last_match_out)
+end
 
 source.new = function()
 	local self = setmetatable({}, { __index = source })
+	self.regexes = {}
 	return self
+end
+
+source.regex = function(self, pattern)
+  self.regexes[pattern] = self.regexes[pattern] or vim.regex(pattern)
+  return self.regexes[pattern]
 end
 
 source.get_keyword_pattern = function(_, params)
@@ -88,7 +68,7 @@ source.get_keyword_pattern = function(_, params)
 end
 
 
-source.complete = function(_, params, callback)
+source.complete = function(self, params, callback)
 	params.option = vim.tbl_deep_extend('keep', params.option, defaults)
 	local is_cmd = (vim.api.nvim_get_mode().mode == 'c')
 	-- in cmd mode we take all the line as a pattern
@@ -102,15 +82,21 @@ source.complete = function(_, params, callback)
 		for _, result in ipairs(matches) do
 			local line, positions, _ = unpack(result)
 			local min, max = minmax(positions)
-			local item = extract_match(line, min, max, params.option.stop_characters)
+			local item = self:extract_match(
+				line,
+				min,
+				max,
+				params.option.indentifier_patter,
+				params.option.non_indentifier_patter
+			)
 			if item ~= pattern and set[item] == nil and #item <= params.option.max_match_length then
 				set[item] = true
 				table.insert(
-				items,
-				{
-					word = (is_cmd and vim.fn.escape(item, '/?')) or item,
-					label = item,
-				})
+					items,
+					{
+						word = (is_cmd and vim.fn.escape(item, '/?')) or item,
+						label = item,
+					})
 			end
 		end
 		callback({
