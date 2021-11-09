@@ -7,6 +7,7 @@ local defaults = {
 	non_indentifier_patter = [=[[^[:keyword:]]]=],
 	max_buffer_lines = 20000,
 	max_match_length = 50,
+	max_matches = 15,
   get_bufnrs = function()
     return { vim.api.nvim_get_current_buf() }
 	end,
@@ -87,7 +88,7 @@ source.complete = function(self, params, callback)
 		local set = {}
 		local matches = matcher:filter(pattern, lines)
 		for _, result in ipairs(matches) do
-			local line, positions, _ = unpack(result)
+			local line, positions, score = unpack(result)
 			local min, max = minmax(positions)
 			local item = self:extract_match(
 				line,
@@ -103,9 +104,20 @@ source.complete = function(self, params, callback)
 					{
 						word = (is_cmd and vim.fn.escape(item, '/?')) or item,
 						label = item,
+						-- cmp has a different notion of filtering completion items. We want
+						-- all of out fuzzy matche to appear
+						filterText = pattern,
+						sortText = item,
+						data = score,
 					})
 			end
 		end
+		-- keep top max_matches items
+		table.sort(items, function(a, b)
+			return a.data > b.data
+		end)
+		items = {unpack(items, 1, params.option.max_matches)}
+
 		callback({
 			items = items,
 			isIncomplete = true,

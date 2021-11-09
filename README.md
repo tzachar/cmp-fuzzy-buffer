@@ -123,3 +123,9 @@ require'cmp'.setup {
   })
 }
 ```
+
+## max_matches (type: int)
+
+Maximal number of matches to returl.
+
+_Default:_ 15
