@@ -47,6 +47,34 @@ parsing out tokens. This enables fuzzy search containing, for example, spaces.
 
 *Note:* the plugin's name is `fuzzy_buffer` in `cmp`'s config.
 
+
+# Sorting and Filtering
+
+By default, `nvim-cmp` will filter out sequences which we matched. To prevent
+this, we use the searched-for pattern as an input for `filterText`, such that
+all matched strings will be returned. However, this causes `nvim-cmp` to badly
+sort our returned results. To solve this issue, and sort `cmp-fuzzy-path`
+results by the score returned by the fuzzy matcher, you can use the following:
+
+```lua
+cmp.setup {
+	sorting = {
+		priority_weight = 2,
+		comparators = {
+			require('cmp_fuzzy_buffer.compare'),
+			compare.offset,
+			compare.exact,
+			compare.score,
+			compare.recently_used,
+			compare.kind,
+			compare.sort_text,
+			compare.length,
+			compare.order,
+		}
+	},
+}
+```
+
 # Configuration
 
 

@@ -108,13 +108,13 @@ source.complete = function(self, params, callback)
 						-- all of out fuzzy matche to appear
 						filterText = pattern,
 						sortText = item,
-						data = score,
+						data = {score=score},
 					})
 			end
 		end
 		-- keep top max_matches items
 		table.sort(items, function(a, b)
-			return a.data > b.data
+			return a.data.score > b.data.score
 		end)
 		items = {unpack(items, 1, params.option.max_matches)}
 
