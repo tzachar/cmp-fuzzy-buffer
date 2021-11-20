@@ -109,6 +109,7 @@ source.complete = function(self, params, callback)
 						filterText = pattern,
 						sortText = item,
 						data = {score=score},
+						dup = 0,
 					})
 			end
 		end
