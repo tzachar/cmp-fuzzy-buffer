@@ -97,7 +97,7 @@ source.complete = function(self, params, callback)
 				params.option.indentifier_patter,
 				params.option.non_indentifier_patter
 			)
-			if item ~= pattern and set[item] == nil and #item <= params.option.max_match_length then
+			if (is_cmd or item ~= pattern) and set[item] == nil and #item <= params.option.max_match_length then
 				set[item] = true
 				table.insert(
 					items,
