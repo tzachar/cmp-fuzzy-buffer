@@ -57,6 +57,8 @@ sort our returned results. To solve this issue, and sort `cmp-fuzzy-path`
 results by the score returned by the fuzzy matcher, you can use the following:
 
 ```lua
+local compare = require('cmp.config.compare')
+
 cmp.setup {
 	sorting = {
 		priority_weight = 2,
