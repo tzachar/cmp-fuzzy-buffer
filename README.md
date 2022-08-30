@@ -137,7 +137,7 @@ require'cmp'.setup {
   sources = cmp.config.sources({
     { 
        name = 'fuzzy_buffer' ,
-       opts = {
+       option = {
           get_bufnrs = function()  
           local bufs = {}
           for _, buf in ipairs(vim.api.nvim_list_bufs()) do
