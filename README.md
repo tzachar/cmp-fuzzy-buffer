@@ -119,6 +119,14 @@ Do not show matches longer than `max_match_length`.
 
 _Default:_ 50
 
+## fuzzy_extra_arg
+
+This has different meaning depending on the fuzzy matching library used.
+For `fzf`, this is the `case_mode` argument: 0 = smart_case, 1 = ignore_case, 2 = respect_case.
+For `fzy`, this is the `is_case_sensitive` argument. Set to `false` to do case insensitive matching.
+
+_Default:_ 0
+
 ## get_bufnrs (type: function)
 
 Return a list of buffer numbers from which to get lines.

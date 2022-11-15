@@ -2,12 +2,10 @@ local api = vim.api
 local matcher = require('fuzzy_nvim')
 
 local defaults = {
-  keyword_pattern = [[\%(-\?\d\+\%(\.\d\+\)\?\|\h\w*\%([\-]\w*\)*\)]],
-	indentifier_patter = [=[[[:keyword:]]]=],
-	non_indentifier_patter = [=[[^[:keyword:]]]=],
 	max_buffer_lines = 20000,
 	max_match_length = 50,
 	max_matches = 15,
+  fuzzy_extra_arg = 0,
   get_bufnrs = function()
     return { vim.api.nvim_get_current_buf() }
 	end,
@@ -29,22 +27,45 @@ end
 
 local source = {}
 
+source.extract_matches = function(self, line, first_match, last_match, is_cmd)
+  local matches = {}
+  local keyword_regex = self:regex([[\k]])
+  local space_regex = self:regex([[\s]])
+  local starts = {}
+  local ends = {}
 
-source.extract_match = function(self, line, first_match, last_match, id_pattern, non_id_pattern)
-	-- dump(line, first_match, last_match)
-	local start_regex = self:regex([[.*]] .. non_id_pattern .. [[\+]] .. [[\ze]] .. id_pattern .. [[\+]])
-	local end_regex = self:regex(non_id_pattern .. [[\|$]])
+  for i = first_match, 0, -1 do
+    -- if i == 0 or space_regex:match_str(line:sub(i, i)) then
+    --   table.insert(starts, i + 1)
+    --   break
+    -- elseif keyword_regex:match_str(line:sub(i, i)) == nil then
+    --   table.insert(starts, i + 1)
+    --   -- keep matching
+    if keyword_regex:match_str(line:sub(i, i)) == nil then
+      table.insert(starts, i + 1)
+      break
+    end
+  end
+  for i = last_match, #line + 1 do
+    if i == #line + 1 or space_regex:match_str(line:sub(i, i)) then
+      table.insert(ends, i - 1)
+      break
+    elseif keyword_regex:match_str(line:sub(i, i)) == nil then
+      table.insert(ends, i - 1)
+      -- keep matching
+    end
+  end
+  if is_cmd then
+    table.insert(matches, line:sub(starts[1], ends[-1]))
+  else
+    for _, first in ipairs(starts) do
+      for _, last in ipairs(ends) do
+        table.insert(matches, line:sub(first, last))
+      end
+    end
+  end
 
-	local s, e = end_regex:match_str(line:sub(last_match))
-	local last_match_out = last_match + (s or 2) - 1
-	-- dump('end:', line:sub(last_match), (s or 'nil'), (e or 'nil'), last_match_out)
-
-	s, e = start_regex:match_str(line:sub(1, first_match))
-	local first_match_out = (e or first_match - 1) + 1
-	-- dump('start:', line:sub(1, first_match), (s or 'nil'), (e or 'nil'), first_match_out)
-
-	-- dump('out:', line:sub(first_match_out, last_match_out))
-	return line:sub(first_match_out, last_match_out)
+  return matches
 end
 
 source.new = function()
@@ -58,17 +79,12 @@ source.regex = function(self, pattern)
   return self.regexes[pattern]
 end
 
-source.get_keyword_pattern = function(_, params)
-	if params.option.keyword_pattern then
-		return params.option.keyword_pattern
-	end
-
-	-- in cmd mode we want to match everything into the search pattern
-	if (vim.api.nvim_get_mode().mode == 'c') then
-		return [=[[^[:blank:]].*]=]
-	else
-		return [[\%(-\?\d\+\%(\.\d\+\)\?\|\h\w*\%([\-]\w*\)*\)]]
-	end
+source.get_keyword_pattern = function()
+  if vim.api.nvim_get_mode().mode == 'c' then
+    return '.*'
+  else
+    return [=[[^[:blank:]]\+]=]
+  end
 end
 
 
@@ -81,46 +97,54 @@ source.complete = function(self, params, callback)
 		local lines = {}
 		for _, bufnr in ipairs(params.option.get_bufnrs()) do
 			if api.nvim_buf_line_count(bufnr) <= params.option.max_buffer_lines then
-				vim.list_extend(lines, api.nvim_buf_get_lines(bufnr, 0, -1, true))
+        if (api.nvim_get_current_buf() == bufnr or 0 == bufnr) and not is_cmd then
+          -- skip current line
+          local current_line = params.context.cursor.line
+          vim.list_extend(lines, api.nvim_buf_get_lines(bufnr, 0, current_line, false))
+          vim.list_extend(lines, api.nvim_buf_get_lines(bufnr, current_line + 1, -1, false))
+        else
+          vim.list_extend(lines, api.nvim_buf_get_lines(bufnr, 0, -1, false))
+        end
 			end
 		end
-		local items = {}
+		local completions = {}
 		local set = {}
-		local matches = matcher:filter(pattern, lines)
+		local matches = matcher:filter(pattern, lines, params.option.fuzzy_extra_arg)
 		for _, result in ipairs(matches) do
 			local line, positions, score = unpack(result)
 			local min, max = minmax(positions)
-			local item = self:extract_match(
+			local items = self:extract_matches(
 				line,
 				min,
 				max,
-				params.option.indentifier_patter,
-				params.option.non_indentifier_patter
+        is_cmd
 			)
-			if (is_cmd or item ~= pattern) and set[item] == nil and #item <= params.option.max_match_length then
-				set[item] = true
-				table.insert(
-					items,
-					{
-						word = (is_cmd and vim.fn.escape(item, '/?')) or item,
-						label = item,
-						-- cmp has a different notion of filtering completion items. We want
-						-- all of out fuzzy matche to appear
-						filterText = pattern,
-						sortText = item,
-						data = {score=score},
-						dup = 0,
-					})
-			end
+      for _, item in ipairs(items) do
+        if (is_cmd or item ~= pattern) and set[item] == nil and #item <= params.option.max_match_length then
+          set[item] = true
+          table.insert(
+            completions,
+            {
+              word = (is_cmd and vim.fn.escape(item, '/?')) or item,
+              label = item,
+              -- cmp has a different notion of filtering completion items. We want
+              -- all of out fuzzy matche to appear
+              filterText = pattern,
+              sortText = item,
+              data = {score=score},
+              dup = 0,
+            })
+        end
+      end
 		end
 		-- keep top max_matches items
-		table.sort(items, function(a, b)
+		table.sort(completions, function(a, b)
 			return a.data.score > b.data.score
 		end)
-		items = {unpack(items, 1, params.option.max_matches)}
+		completions = {unpack(completions, 1, params.option.max_matches)}
 
 		callback({
-			items = items,
+			items = completions,
 			isIncomplete = true,
 		})
 	end
