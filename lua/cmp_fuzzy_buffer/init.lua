@@ -35,12 +35,6 @@ source.extract_matches = function(self, line, first_match, last_match, is_cmd)
   local ends = {}
 
   for i = first_match, 0, -1 do
-    -- if i == 0 or space_regex:match_str(line:sub(i, i)) then
-    --   table.insert(starts, i + 1)
-    --   break
-    -- elseif keyword_regex:match_str(line:sub(i, i)) == nil then
-    --   table.insert(starts, i + 1)
-    --   -- keep matching
     if keyword_regex:match_str(line:sub(i, i)) == nil then
       table.insert(starts, i + 1)
       break
@@ -56,7 +50,7 @@ source.extract_matches = function(self, line, first_match, last_match, is_cmd)
     end
   end
   if is_cmd then
-    table.insert(matches, line:sub(starts[1], ends[-1]))
+    table.insert(matches, line:sub(starts[1], ends[1]))
   else
     for _, first in ipairs(starts) do
       for _, last in ipairs(ends) do
