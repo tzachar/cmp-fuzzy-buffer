@@ -58,7 +58,6 @@ source.extract_matches = function(self, line, first_match, last_match, is_cmd)
       end
     end
   end
-
   return matches
 end
 
@@ -77,7 +76,7 @@ source.get_keyword_pattern = function()
   if vim.api.nvim_get_mode().mode == 'c' then
     return '.*'
   else
-    return [=[[^[:blank:]]\+]=]
+    return [=[[^[:blank:]\[\]()=:'"\.,]\+]=]
   end
 end
 
