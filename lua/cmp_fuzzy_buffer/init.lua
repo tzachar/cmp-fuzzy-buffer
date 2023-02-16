@@ -76,7 +76,8 @@ source.get_keyword_pattern = function()
   if vim.api.nvim_get_mode().mode == 'c' then
     return '.*'
   else
-    return [=[[^[:blank:]\[\]()=:'"\.,]\+]=]
+    -- return [=[[^[:blank:]\[\]()=:'"\.,-{}]\+]=]
+    return [=[\k\+]=]
   end
 end
 
