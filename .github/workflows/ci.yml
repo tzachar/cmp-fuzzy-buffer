@@ -1,7 +1,7 @@
 name: autogen
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - "lua/**.lua"
       - "examples/**.lua"
