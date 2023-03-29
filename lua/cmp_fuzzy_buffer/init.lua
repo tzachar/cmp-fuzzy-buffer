@@ -4,6 +4,7 @@ local matcher = require('fuzzy_nvim')
 local defaults = {
   max_buffer_lines = 20000,
   max_match_length = 50,
+  min_match_length = 1,
   max_matches = 15,
   fuzzy_extra_arg = 0,
   get_bufnrs = function()
@@ -86,6 +87,11 @@ source.complete = function(self, params, callback)
   local is_cmd = (vim.api.nvim_get_mode().mode == 'c')
   -- in cmd mode we take all the line as a pattern
   local pattern = params.context.cursor_before_line:sub(params.offset)
+  if #pattern < params.option.min_match_length then
+    callback({ items = {}, isIncomplete = true })
+    return
+  end
+
   vim.schedule(function()
     local lines = {}
     for _, bufnr in ipairs(params.option.get_bufnrs()) do
@@ -108,7 +114,11 @@ source.complete = function(self, params, callback)
       local min, max = minmax(positions)
       local items = self:extract_matches(line, min, max, is_cmd)
       for _, item in ipairs(items) do
-        if (is_cmd or item ~= pattern) and set[item] == nil and #item <= params.option.max_match_length then
+        if
+          (is_cmd or item ~= pattern)
+          and set[item] == nil
+          and #item <= params.option.max_match_length
+        then
           set[item] = true
           table.insert(completions, {
             word = (is_cmd and vim.fn.escape(item, '/?')) or item,
