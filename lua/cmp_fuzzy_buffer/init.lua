@@ -73,12 +73,12 @@ source.regex = function(self, pattern)
   return self.regexes[pattern]
 end
 
-source.get_keyword_pattern = function()
+source.get_keyword_pattern = function(self, params)
+  params.option = vim.tbl_deep_extend('keep', params.option, defaults)
   if vim.api.nvim_get_mode().mode == 'c' then
-    return '.*'
+    return string.format([=[.\{%d,}]=], params.option.min_match_length)
   else
-    -- return [=[[^[:blank:]\[\]()=:'"\.,-{}]\+]=]
-    return [=[\k\+]=]
+    return string.format([=[\k\{%d,}]=], params.option.min_match_length)
   end
 end
 
@@ -87,10 +87,6 @@ source.complete = function(self, params, callback)
   local is_cmd = (vim.api.nvim_get_mode().mode == 'c')
   -- in cmd mode we take all the line as a pattern
   local pattern = params.context.cursor_before_line:sub(params.offset)
-  if #pattern < params.option.min_match_length then
-    callback({ items = {}, isIncomplete = true })
-    return
-  end
 
   vim.schedule(function()
     local lines = {}
