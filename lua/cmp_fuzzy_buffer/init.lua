@@ -110,11 +110,7 @@ source.complete = function(self, params, callback)
       local min, max = minmax(positions)
       local items = self:extract_matches(line, min, max, is_cmd)
       for _, item in ipairs(items) do
-        if
-          (is_cmd or item ~= pattern)
-          and set[item] == nil
-          and #item <= params.option.max_match_length
-        then
+        if (is_cmd or item ~= pattern) and set[item] == nil and #item <= params.option.max_match_length then
           set[item] = true
           table.insert(completions, {
             word = (is_cmd and vim.fn.escape(item, '/?')) or item,

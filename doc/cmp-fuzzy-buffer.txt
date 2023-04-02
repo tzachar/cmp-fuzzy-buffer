@@ -13,6 +13,7 @@ Table of Contents                         *cmp-fuzzy-buffer-table-of-contents*
   - non_indentifier_patter (type: vim regex)|cmp-fuzzy-buffer-non_indentifier_patter-(type:-vim-regex)|
   - max_buffer_lines (type: int)|cmp-fuzzy-buffer-max_buffer_lines-(type:-int)|
   - max_match_length (type: int)|cmp-fuzzy-buffer-max_match_length-(type:-int)|
+  - min_match_length (type: int)|cmp-fuzzy-buffer-min_match_length-(type:-int)|
   - fuzzy_extra_arg                         |cmp-fuzzy-buffer-fuzzy_extra_arg|
   - get_bufnrs (type: function) |cmp-fuzzy-buffer-get_bufnrs-(type:-function)|
   - max_matches (type: int)         |cmp-fuzzy-buffer-max_matches-(type:-int)|
@@ -143,7 +144,7 @@ and match results.
 
 MAX_BUFFER_LINES (TYPE: INT)   *cmp-fuzzy-buffer-max_buffer_lines-(type:-int)*
 
-Te plugin will not work in buffers with more than `max_buffer_lines` lines for
+The plugin will not work in buffers with more than `max_buffer_lines` lines for
 performance reasons.
 
 _Default:_ 20000
