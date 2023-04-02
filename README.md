@@ -108,7 +108,7 @@ match results.
 
 ## max_buffer_lines (type: int)
 
-Te plugin will not work in buffers with more than `max_buffer_lines` lines for
+The plugin will not work in buffers with more than `max_buffer_lines` lines for
 performance reasons.
 
 _Default:_ 20000
@@ -118,6 +118,12 @@ _Default:_ 20000
 Do not show matches longer than `max_match_length`.
 
 _Default:_ 50
+
+## min_match_length (type: int)
+
+Do not show matches shorter than `min_match_length`.
+
+_Default:_ 1
 
 ## fuzzy_extra_arg
 
